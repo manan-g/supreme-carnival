@@ -7,11 +7,11 @@ export default function UploadNewsPage() {
 
     return (
         <div>
-            <MenuAppBar Header="Upload News" />
+            <><MenuAppBar Header="Upload News" />
             <UploadNewsComp
                 News={News}
                 setNews={setNews}
-            />
+            /></>
         </div>
     );
 }

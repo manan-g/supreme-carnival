@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 export default function UploadNewsComp({News, setNews}) {
-    const [Loading, setLoading,CompatibilityMessage, setCompatibilityMessage,UserArticle, setUserArticle,Account, setAccount,NewsList, setNewsList,Contract, setContract,NewsCount, setNewsCount] = useStateValue();
+    const [, ,CompatibilityMessage, setCompatibilityMessage,UserArticle, setUserArticle,Account, setAccount,NewsList, setNewsList,Contract, setContract,NewsCount, setNewsCount] = useStateValue();
     const classes = useStyles();
     const history = useHistory();
 
@@ -30,16 +30,21 @@ export default function UploadNewsComp({News, setNews}) {
         const description = News.description;
         if(topic!='' && description != '')
         {
-        Contract.methods
+            // setLoading(true);
+        await Contract.methods
             .uploadNews(topic, description)
             .send({ from: Account })
-            .on("transactionHash", async (hash) => {
+            // .on("transactionHash", async (hash) => {
+                
+            // })
+            .on('receipt',async (receipt)=>{
                 setNews({
                     topic: "",
                     description: "",
                 });
 
                 const news_count = await Contract.methods.newsCount().call();
+                // setLoading(false);
                 //Load news
                 for (let i = news_count; i > NewsCount; i--) {
                     const news_t = await Contract.methods.news(i).call();
@@ -48,11 +53,6 @@ export default function UploadNewsComp({News, setNews}) {
                     });
                 }
                 setNewsCount(news_count);
-            })
-            .on('receipt',async (receipt)=>{
-                
-                const user_article = await Contract.methods.getPlatformUserArticles(Account).call();
-                setUserArticle(user_article);
                 history.push(`/${receipt.events.NewsUploaded.returnValues.newsId}`)
             })
             .on("error", (e) => {
